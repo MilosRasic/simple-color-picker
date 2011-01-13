@@ -11,7 +11,11 @@ $.fn.simpleColorPicker = function(options) {
 				, '#990000', '#b45f06', '#bf9000', '#38761d', '#134f5c', '#0b5394', '#351c75', '#741b47'
 				, '#660000', '#783f04', '#7f6000', '#274e13', '#0c343d', '#073763', '#20124d', '#4C1130'],
         showEffect: '',
-        hideEffect: ''
+        hideEffect: '',
+        change: function(element, color) {
+        	return;
+        },
+        prefix: null
     };
 
     var opts = $.extend(defaults, options);
@@ -21,12 +25,15 @@ $.fn.simpleColorPicker = function(options) {
 
         var colorsMarkup = '';
 
-        var prefix = txt.attr('id').replace(/-/, '') + '_';
+				if (opts.prefix == null)
+        	var prefix = txt.attr('id').replace(/-/, '') + '_';
+				else
+					var prefix = opts.prefix;
 
         for(var i = 0; i < opts.colors.length; i++){
-			var item = opts.colors[i];
+						var item = opts.colors[i];
 
-			var breakLine = '';
+						var breakLine = '';
             if (i % opts.colorsPerLine == 0)
                 breakLine = 'clear: both; ';
 
@@ -36,15 +43,14 @@ $.fn.simpleColorPicker = function(options) {
             }
 
             colorsMarkup += '<li id="' + prefix + 'color-' + i + '" class="color-box" style="' + breakLine + 'background-color: ' + item + '" title="' + item + '"></li>';
-		}
+				}
 
         var box = $('<div id="' + prefix + 'color-picker" class="color-picker" style="position: absolute; left: 0px; top: 0px;"><ul>' + colorsMarkup + '</ul><div style="clear: both;"></div></div>');
         $('body').append(box);
         box.hide();
 
         box.find('li.color-box').click(function() {
-            txt.val(opts.colors[this.id.substr(this.id.indexOf('-') + 1)]);
-            txt.blur();
+            opts.change(txt, opts.colors[this.id.substr(this.id.indexOf('-') + 1)]);
             hideBox(box);
         });
 
@@ -60,12 +66,13 @@ $.fn.simpleColorPicker = function(options) {
             event.stopPropagation();
         });
 
-        txt.focus(function() {
-            var pos = txt.offset();
-            var left = pos.left + txt.outerWidth() - box.outerWidth();
-            if (left < pos.left) left = pos.left;
-            box.css({ left: left, top: (pos.top + txt.outerHeight()) });
-            showBox(box);
+        txt.click(function() {
+        	$('.color-picker').hide();
+          var pos = txt.offset();
+          var left = pos.left + txt.outerWidth() - box.outerWidth();
+          if (left < pos.left) left = pos.left;
+          box.css({ left: left, top: (pos.top + txt.outerHeight()) });
+          showBox(box);
         });
 
         function hideBox(box) {
